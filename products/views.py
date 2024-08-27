@@ -1,5 +1,5 @@
 
-from rest_framework import generics, mixins
+from rest_framework import generics, mixins, permissions, authentication
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -8,9 +8,11 @@ from django.shortcuts import get_object_or_404
 
 from .models import Products
 from .serializers import ProductSerializes
-
+from .permissions import IsStaffEditorPermission
+from root.authentication import TokenAuthentication
 
 # this is class based view
+
 
 class ProductDetailsAPIView(generics.RetrieveAPIView):
     queryset = Products.objects.all()
@@ -35,6 +37,14 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
     '''
     queryset = Products.objects.all()
     serializer_class = ProductSerializes
+
+    # for permissions we added these authentication and permission classes in DRF
+    authentication_classes = [
+        authentication.SessionAuthentication,
+        TokenAuthentication,
+    ]
+    # permission_classes = [permissions.DjangoModelPermissions]
+    permission_classes = [IsStaffEditorPermission]
 
     def perform_create(self, serializer):
 
@@ -74,3 +84,33 @@ def product_alternate_view(request, pk=None, *args, **kwargs):
 
 
 # USING MIXINS WE Can directly specify HTTP methods
+
+class ProductMixinAPIView(
+        mixins.ListModelMixin,
+        mixins.CreateModelMixin,
+        generics.GenericAPIView):
+
+    queryset = Products.objects.all()
+    serializer_class = ProductSerializes
+    lookup_field = 'pk'
+
+    def get(self, request, *args, **kwargs):
+
+        if not kwargs.get('pk'):
+            return self.retrieve(request, *args, **kwargs)
+        return self.list(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return self.create(self, request, *args, **kwargs)
+
+    def perform_create(self, serializer):
+
+        # title = serializer.validated_data.get('title')
+        title = serializer.validated_data.get('title')
+        content = serializer.validated_data.get('content') or None
+        if not content:
+            content = title
+        serializer.save(content=content)
+
+
+product_mixin_api_view = ProductMixinAPIView.as_view()
