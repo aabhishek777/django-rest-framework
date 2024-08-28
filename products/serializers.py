@@ -4,11 +4,13 @@ from .models import Products
 
 from rest_framework.reverse import reverse  # reverse gives the url (current)
 
+from root.serializers import UserPublicSerializer
+
 
 class ProductSerializes(serializers.ModelSerializer):
 
     # my_discount= serializers.SerializerMethodField(read_only=True)
-
+    owner = UserPublicSerializer(source='user', read_only=True)
     discount = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField(read_only=True)
     email = serializers.EmailField(write_only=True)
@@ -17,13 +19,14 @@ class ProductSerializes(serializers.ModelSerializer):
         model = Products
         fields = [
             'id',
+            'owner',
             'content',
             'price',
             'sale_price',
             'discount',
             'title',
             'url',
-            'email'
+            'email',
         ]
 
     # validation logic
@@ -38,6 +41,8 @@ class ProductSerializes(serializers.ModelSerializer):
     def create(self, validated_data):
         email = validated_data.pop('email')
         return super().create(validated_data)
+
+    # we can use get_ + the above declared name in the fields to get the value ( calculated )
 
     def get_url(self, obj):
         # return f'/api/v2/{obj.pk}'

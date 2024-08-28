@@ -12,7 +12,7 @@ from .permissions import IsStaffEditorPermission
 from root.authentication import TokenAuthentication
 
 
-from root.mixins import StaffEditorPermissionMixins
+from root.mixins import StaffEditorPermissionMixins, UserGetQuerySetMixin
 
 # this is class based view
 
@@ -39,11 +39,11 @@ class ProductCreateAPIView(
 
 
 class ProductListCreateAPIView(
+        UserGetQuerySetMixin,
         StaffEditorPermissionMixins,
         generics.ListCreateAPIView):
     '''
     GET Req
-
     '''
     queryset = Products.objects.all()
     serializer_class = ProductSerializes
@@ -55,15 +55,23 @@ class ProductListCreateAPIView(
     #     TokenAuthentication,
     # ]
     # permission_classes = [permissions.DjangoModelPermissions]
-    permission_classes = [IsStaffEditorPermission]
+    # permission_classes = [IsStaffEditorPermission]
 
     def perform_create(self, serializer):
-
         title = serializer.validated_data.get('title')
         content = serializer.validated_data.get('content') or None
         if not content:
             content = title
         serializer.save(content=content)
+
+    # works like queryset but we can additionally perform some other task over it . ** This function filter the user shown based on user is have permissions or not
+    # def get_queryset(self, *args, **kwargs):
+    #     queryset = super().get_queryset(*args, **kwargs)
+    #     request = self.request
+    #     user = request.user
+    #     if not user.is_authenticated:
+    #         return Products.objects.none()
+    #     return queryset.filter(user=request.user)
 
 
 # function based view

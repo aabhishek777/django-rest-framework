@@ -1,11 +1,20 @@
 from django.db import models
 from decimal import Decimal
 
+from django.conf import settings
+
+
+USER = settings.AUTH_USER_MODEL
+
 
 class Products(models.Model):
+
+    user = models.ForeignKey(USER, default=1, null=True,
+                             on_delete=models.SET_NULL)
     title = models.CharField(max_length=100)
     content = models.TextField(blank=True, null=True)
     price = models.DecimalField(decimal_places=2, max_digits=15, default=99)
+    email = models.EmailField(null=True, blank=True)
 
     @property
     def sale_price(self):
