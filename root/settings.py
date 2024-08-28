@@ -46,8 +46,12 @@ ROOT_URLCONF = 'root.urls'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
+        # rest_framework.authentication.TokenAuthentication
+        'root.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly'
     ]
 }
 

@@ -1,5 +1,5 @@
 
-from rest_framework import generics, mixins, permissions, authentication
+from rest_framework import generics, mixins
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
@@ -11,15 +11,23 @@ from .serializers import ProductSerializes
 from .permissions import IsStaffEditorPermission
 from root.authentication import TokenAuthentication
 
+
+from root.mixins import StaffEditorPermissionMixins
+
 # this is class based view
 
 
-class ProductDetailsAPIView(generics.RetrieveAPIView):
+class ProductDetailsAPIView(
+        StaffEditorPermissionMixins,
+        generics.RetrieveAPIView):
+
     queryset = Products.objects.all()
     serializer_class = ProductSerializes
 
 
-class ProductCreateAPIView(generics.CreateAPIView):
+class ProductCreateAPIView(
+        StaffEditorPermissionMixins,
+        generics.CreateAPIView):
     '''
 
     this is used to create the product . we can pass the data in body also we will use POST Req
@@ -30,7 +38,9 @@ class ProductCreateAPIView(generics.CreateAPIView):
     serializer_class = ProductSerializes
 
 
-class ProductListCreateAPIView(generics.ListCreateAPIView):
+class ProductListCreateAPIView(
+        StaffEditorPermissionMixins,
+        generics.ListCreateAPIView):
     '''
     GET Req
 
@@ -38,11 +48,12 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
     queryset = Products.objects.all()
     serializer_class = ProductSerializes
 
+    # we used default permission and
     # for permissions we added these authentication and permission classes in DRF
-    authentication_classes = [
-        authentication.SessionAuthentication,
-        TokenAuthentication,
-    ]
+    # authentication_classes = [
+    #     authentication.SessionAuthentication,
+    #     TokenAuthentication,
+    # ]
     # permission_classes = [permissions.DjangoModelPermissions]
     permission_classes = [IsStaffEditorPermission]
 
