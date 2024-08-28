@@ -8,4 +8,4 @@ class ProductListViewSet(viewsets.ModelViewSet):
 
     queryset = Products.objects.all()
     serializer_class = ProductSerializes
-    lookup_field = 'pk  '
+    lookup_field = 'pk'
