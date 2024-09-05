@@ -8,6 +8,8 @@ User = get_user_model()
 
 class UserPublicSerializer(serializers.ModelSerializer):
 
+    print(User)
+
     class Meta:
         model = User
         fields = ['id', 'username', 'email']
